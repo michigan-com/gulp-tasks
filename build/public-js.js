@@ -12,29 +12,34 @@ var buffer = require('vinyl-buffer');
 var browserify = require('browserify');
 var pkgify = require('pkgify');
 var source = require('vinyl-source-stream');
-var each = require('lodash/collection/forEach');
-var browserifyShim = require('browserify-shim');
 
 var jsSrc = './src/client/';
 var jsDist = './public/js/';
-var jsBundle = ['breakfast/breakfast.js', 'register.js'];
 var jsFiles = jsSrc + '**/*.js';
+
+/**
+ * DEFINE ALL CLIENT JS FILES HERE BY FILENAME
+ */
+var jsBundle = [];
 
 /**
  * Gulp task
  * Bundle all the JS files specified in the jsBundle array
  */
 gulp.task('browserify', function() {
-  each(jsBundle, function(fname) {
-    var filePath = jsSrc + fname;
-    gulp.src(filePath)
-        .pipe(plumber(gutil.log))
-        .pipe(tap(bundleJs))
-        .pipe(gulp.dest(jsDist))
-        .on('end', function() {
-          gutil.log('Browserify finished creating: ' + filePath);
-        });
-  });
+  for (var i = 0; i < jsBundle.length; i++) {
+    (function(i) {
+      var fname = jsBundle[i];
+      var filePath = jsSrc + fname;
+      gulp.src(filePath)
+          .pipe(plumber(gutil.log))
+          .pipe(tap(bundleJs))
+          .pipe(gulp.dest(jsDist))
+          .on('end', function() {
+            gutil.log('Browserify finished creating: ' + filePath);
+          });
+    })(i);
+  }
 });
 
 /**
@@ -54,17 +59,7 @@ function bundleJs(file) {
   gutil.log('Browserify is compiling ' + file.path);
   var b = browserify(file.path, { debug: true })
     .transform(babelify.configure({ stage: 0, optional: ['runtime'] }))
-/*    .transform(pkgify, {*/
-      //packages: {
-        //publicLib: './public/js/src/lib',
-        //jsx: './public/js/src/jsx',
-        //charts: './public/js/src/charts',
-        //framework: './public/js/src/framework'
-      //},
-      //relative: __dirname
-    /*})*/
     .transform(reactify)
-    .transform(browserifyShim, { global: true });
 
   // Do the necessary thing for tap/plumber
   var stream = b.bundle();
@@ -86,11 +81,11 @@ function bundleJs(file) {
  * them on save
  */
 function watchFunction() {
-
-  gutil.log('Watching ' + jsFiles);
-  gulp.watch(jsFiles, function() {
-    each(jsBundle, function(fname) {
-      var filePath = jsSrc + fname;
+  for (var i = 0; i < jsBundle.length; i++) {
+    var fname = jsBundle[i];
+    var filePath = jsSrc + fname;
+    gutil.log('Watching ' + filePath);
+    gulp.watch(filePath, function() {
       gulp.src(filePath)
         .pipe(plumber(gutil.log))
         .pipe(tap(bundleJs))
@@ -99,7 +94,7 @@ function watchFunction() {
           gutil.log('Browserify finished creating: ' + filePath);
         });
     });
-  });
+  }
 }
 
 module.exports = {
