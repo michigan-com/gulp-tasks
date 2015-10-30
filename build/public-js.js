@@ -83,13 +83,13 @@ function watchFunction() {
     var fname = jsBundle[i];
     var filePath = jsSrc + fname;
     gutil.log('Watching ' + filePath);
-    gulp.watch(filePath, function() {
-      gulp.src(filePath)
+    gulp.watch(filePath, function(event) {
+      gulp.src(event.path)
         .pipe(plumber(gutil.log))
         .pipe(tap(bundleJs))
         .pipe(gulp.dest(jsDist))
         .on('end', function() {
-          gutil.log('Browserify finished creating: ' + filePath);
+          gutil.log('Browserify finished creating: ' + event.path);
         });
     });
   }
