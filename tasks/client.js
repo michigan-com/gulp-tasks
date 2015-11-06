@@ -1,6 +1,7 @@
 'use strict';
 
 var fs = require('fs');
+var assign = require('object-assign');
 
 var gulp = require('gulp');
 var gutil = require('gulp-util');
@@ -14,25 +15,27 @@ var watchify = require('watchify');
 var babelify = require('babelify');
 var browserify = require('browserify');
 
-var browserifyOpts = Object.assign({}, watchify.args, { debug: true });
+var browserifyOpts = assign({}, watchify.args, { debug: true });
 
-var babelOpts = {
-  presets: ['es2015', 'react', 'stage-0'],
-  plugins: ['transform-runtime'],
-};
-
-var bundleOpts = {
-  prod: false,
-  watch: false,
-  src: './src/client/',
-  dest: './public/js/'
-};
+function bundleOpts() {
+  return {
+    prod: false,
+    watch: false,
+    src: './src/client/',
+    dest: './public/js/',
+    babel: {
+      presets: ['es2015', 'react', 'stage-0'],
+      plugins: ['transform-runtime'],
+    },
+    browserify: browserifyOpts
+  };
+}
 
 /**
  * Gets all .js files, non-recursively and then create separate browserify bundles
  */
 function bundleFiles(done, options) {
-  if (typeof options === 'undefined') options = bundleOpts;
+  if (typeof options === 'undefined') options = bundleOpts();
 
   var count = 0;
   var files = fs.readdirSync(options.src);
@@ -40,7 +43,7 @@ function bundleFiles(done, options) {
     var file = files[i];
     if (file.indexOf('.swp') >= 0) continue;
     if (file.toLowerCase().indexOf('.js' >= 0)) {
-      var opts = Object.assign({}, options, { fname: options.src + file });
+      var opts = assign({}, options, { fname: options.src + file });
 
       if (opts.prod) {
         bundleProd(callbacksDone, opts);
@@ -60,13 +63,11 @@ function bundleFiles(done, options) {
  * Bundles a single js file into a browserify bundle
  */
 function bundle(done, options) {
-  if (typeof options === 'undefined') options = bundleOpts;
-
   gutil.log('Browserify bundling ' + options.fname);
 
-  var b = browserify(options.fname, browserifyOpts);
+  var b = browserify(options.fname, options.browserifyOpts);
   // place all transforms here
-  b.transform('babelify', babelOpts);
+  b.transform('babelify', options.babel);
 
   if (options.watch) {
     var w = watchify(b);
@@ -92,13 +93,11 @@ function bundle(done, options) {
 }
 
 function bundleProd(done, options) {
-  if (typeof options === 'undefined') options = bundleOpts;
-
   gutil.log('Browserify bundling ' + options.fname);
 
-  var b = browserify(options.fname, browserifyOpts);
+  var b = browserify(options.fname, options.browserifyOpts);
   // place all transforms here
-  b.transform('babelify', babelOpts);
+  b.transform('babelify', options.babel);
 
   return b.bundle()
     .on('error', gutil.log)

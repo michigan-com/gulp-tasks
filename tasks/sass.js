@@ -5,11 +5,13 @@ var gutil = require('gulp-util');
 var sass = require('gulp-sass');
 var sourcemaps = require('gulp-sourcemaps');
 
-var bundleOpts = {
-  prod: false,
-  src: './src/sass/**/*.scss',
-  dest: './public/css'
-};
+function bundleOpts() {
+  return {
+    prod: false,
+    src: './src/sass/**/*.scss',
+    dest: './public/css'
+  };
+}
 
 function bundleFiles(done, opts) {
   if (typeof opts === 'undefined') opts = bundleOpts;
