@@ -115,6 +115,6 @@ function bundleProd(done, options) {
 
 module.exports = {
   bundleFiles: bundleFiles,
-  bundleOpts: bundleOpts
+  opts: bundleOpts
 };
 
