@@ -1,0 +1,40 @@
+{
+  "name": "gulp-tasks",
+  "version": "0.0.1",
+  "description": "Michigan.com gulp tasks",
+  "main": "gulpfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michigan-com/gulp-tasks.git"
+  },
+  "keywords": [
+    "gulp",
+    "tasks",
+    "michigan.com"
+  ],
+  "author": "Mike Varano",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/michigan-com/gulp-tasks/issues"
+  },
+  "homepage": "https://github.com/michigan-com/gulp-tasks#readme",
+  "dependencies": {
+    "babel-plugin-transform-runtime": "^6.1.2",
+    "babel-preset-es2015": "^6.1.2",
+    "babel-preset-react": "^6.1.2",
+    "babel-preset-stage-0": "^6.1.2",
+    "babel-runtime": "^6.0.14",
+    "babelify": "^7.2.0",
+    "browserify": "^12.0.1",
+    "gulp": "^3.9.0",
+    "gulp-flatten": "^0.2.0",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-util": "^3.0.7",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0",
+    "watchify": "^3.6.0"
+  }
+}
