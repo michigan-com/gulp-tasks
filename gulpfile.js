@@ -6,7 +6,7 @@ var ServerTask = require('./tasks/server');
 var SassTask = require('./tasks/sass');
 
 gulp.task('dev', ['client', 'server', 'sass']);
-gulp.task('prod', ['client:prod', 'server', 'sass:prod']);
+gulp.task('default', ['client:prod', 'server', 'sass:prod']);
 gulp.task('watch', ['client:watch', 'server:watch', 'sass:watch']);
 
 /**
