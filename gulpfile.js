@@ -1,37 +1,69 @@
 'use strict';
 
 var fs = require('fs');
+
 var gulp = require('gulp');
+var gutil = require('gulp-util');
+var uglify = require('gulp-uglify');
+var flatten = require('gulp-flatten');
 var sourcemaps = require('gulp-sourcemaps');
+
 var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
-var browserify = require('browserify');
 var watchify = require('watchify');
 var babelify = require('babelify');
-var gutil = require('gulp-util');
-var flatten = require('gulp-flatten');
+var browserify = require('browserify');
+
+var browserifyOpts = Object.assign(
+  {},
+  watchify.args,
+  { debug: true }
+);
+
+var babelOpts = {
+  presets: ['es2015', 'react', 'stage-0'],
+  plugins: ['transform-runtime'],
+};
+
+var bundleOpts = {
+  prod: false,
+  watch: false,
+  src: './src/client/',
+  dest: './public/js/'
+};
 
 gulp.task('client', function(done) {
-  bundleFiles(done);
+  bundleFiles(done, bundleOpts);
 });
 
-gulp.task('watch', function(done) {
-  bundleFiles(done, true);
+gulp.task('client:watch', function(done) {
+  var opts = Object.assign({}, bundleOpts, { watch: true });
+  console.log(opts);
+  bundleFiles(done, opts);
+});
+
+gulp.task('client:prod', function(done) {
+  var opts = Object.assign({}, bundleOpts, { prod: true });
+  bundleFiles(done, opts);
 });
 
 /**
  * Gets all .js files, non-recursively and then creates separate browserify bundles
  */
-function bundleFiles(done, watch, src) {
-  if (typeof src === 'undefined') src = './src/client/';
-
+function bundleFiles(done, options) {
   var count = 0;
-  var files = fs.readdirSync(src);
+  var files = fs.readdirSync(options.src);
   for (var i = 0; i < files.length; i++) {
     var file = files[i];
     if (file.indexOf('.swp') >= 0) continue;
     if (file.toLowerCase().indexOf('.js' >= 0)) {
-      bundle(callbacksDone, watch, src + file);
+      var opts = Object.assign({}, options, { fname: options.src + file });
+
+      if (opts.prod) {
+        bundleProd(callbacksDone, opts);
+      } else {
+        bundle(callbacksDone, opts);
+      }
     }
   }
 
@@ -44,42 +76,53 @@ function bundleFiles(done, watch, src) {
 /**
  * Bundles a single js file into a browserify bundle
  */
-function bundle(done, watch, fname) {
-  gutil.log('Browserify bundling ' + fname);
+function bundle(done, options) {
+  gutil.log('Browserify bundling ' + options.fname);
 
-  var browserifyOpts = Object.assign({}, watchify.args, { debug: true });
-  var babelOpts = {
-    presets: ['es2015', 'react', 'stage-0'],
-    plugins: ['transform-runtime'],
-  };
-
-  var b = browserify(fname, browserifyOpts);
+  var b = browserify(options.fname, browserifyOpts);
   // place all transforms here
   b.transform('babelify', babelOpts);
 
-  if (watch) {
+  if (options.watch) {
     var w = watchify(b);
-    gutil.log('Watching ' + fname);
+    gutil.log('Watching ' + options.fname);
     w.on('log', gutil.log);
     w.on('update', function() {
-      bundle(undefined, false, fname);
+      bundle(undefined, options);
     });
   }
 
-  b.bundle()
+  return b.bundle()
     .on('error', gutil.log)
-    .pipe(source(fname))
+    .pipe(source(options.fname))
     .pipe(buffer())
     .pipe(sourcemaps.init({ loadMaps: true }))
     .pipe(sourcemaps.write('./'))
     .pipe(flatten())
-    .pipe(gulp.dest('./public/js'))
+    .pipe(gulp.dest(options.dest))
     .on('end', function() {
-      gutil.log('Browserify finishined bundling ' + fname);
+      gutil.log('Browserify finishined bundling ' + options.fname);
       if (typeof done === 'function') done();
     });
-
-  return b;
 }
 
+function bundleProd(done, options) {
+  gutil.log('Browserify bundling ' + options.fname);
+
+  var b = browserify(options.fname, browserifyOpts);
+  // place all transforms here
+  b.transform('babelify', babelOpts);
+
+  return b.bundle()
+    .on('error', gutil.log)
+    .pipe(source(options.fname))
+    .pipe(buffer())
+    .pipe(uglify())
+    .pipe(flatten())
+    .pipe(gulp.dest(options.dest))
+    .on('end', function() {
+      gutil.log('Browserify finishined bundling ' + options.fname);
+      if (typeof done === 'function') done();
+    });
+}
 
