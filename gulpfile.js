@@ -14,11 +14,7 @@ var watchify = require('watchify');
 var babelify = require('babelify');
 var browserify = require('browserify');
 
-var browserifyOpts = Object.assign(
-  {},
-  watchify.args,
-  { debug: true }
-);
+var browserifyOpts = Object.assign({}, watchify.args, { debug: true });
 
 var babelOpts = {
   presets: ['es2015', 'react', 'stage-0'],
@@ -38,7 +34,6 @@ gulp.task('client', function(done) {
 
 gulp.task('client:watch', function(done) {
   var opts = Object.assign({}, bundleOpts, { watch: true });
-  console.log(opts);
   bundleFiles(done, opts);
 });
 
@@ -48,7 +43,7 @@ gulp.task('client:prod', function(done) {
 });
 
 /**
- * Gets all .js files, non-recursively and then creates separate browserify bundles
+ * Gets all .js files, non-recursively and then create separate browserify bundles
  */
 function bundleFiles(done, options) {
   var count = 0;
