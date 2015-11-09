@@ -14,7 +14,7 @@ function bundleOpts() {
 }
 
 function bundleFiles(done, opts) {
-  if (typeof opts === 'undefined') opts = bundleOpts;
+  if (typeof opts === 'undefined') opts = bundleOpts();
 
   if (opts.prod) {
     bundleProd(done, opts);
