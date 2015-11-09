@@ -9,8 +9,8 @@ var uglify = require('gulp-uglify');
 var flatten = require('gulp-flatten');
 var sourcemaps = require('gulp-sourcemaps');
 
-var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
+var source = require('vinyl-source-stream');
 var watchify = require('watchify');
 var babelify = require('babelify');
 var browserify = require('browserify');
@@ -33,24 +33,28 @@ function bundleOpts() {
 
 /**
  * Gets all .js files, non-recursively and then create separate browserify bundles
+ * Or if options has a `files` property then it'll just iterate through that list of files
  */
 function bundleFiles(done, options) {
   if (typeof options === 'undefined') options = bundleOpts();
 
+  var reJSExt = new RegExp(/\.js$/i);
+
   var count = 0;
-  var files = fs.readdirSync(options.src);
+  var files = (options.files) ? options.files : fs.readdirSync(options.src);
+
   for (var i = 0; i < files.length; i++) {
     var file = files[i];
-    if (file.indexOf('.swp') >= 0) continue;
-    if (file.toLowerCase().indexOf('.js' >= 0)) {
-      var opts = assign({}, options, { fname: options.src + file });
 
-      if (opts.prod) {
-        bundleProd(callbacksDone, opts);
-      } else {
-        bundle(callbacksDone, opts);
-      }
+    if (!reJSExt.test(file)) continue;
+
+    var opts = assign({}, options, { fname: options.src + file });
+    if (opts.prod) {
+      bundleProd(callbacksDone, opts);
+      continue;
     }
+
+    bundle(callbacksDone, opts);
   }
 
   function callbacksDone() {
