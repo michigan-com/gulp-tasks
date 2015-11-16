@@ -23,13 +23,16 @@ function bundleOpts() {
     watch: false,
     src: './src/client/',
     dest: './public/js/',
-    babel: {
-      presets: ['es2015', 'react', 'stage-0'],
-      plugins: ['transform-runtime'],
-    },
+    babel: {},
     browserify: browserifyOpts
   };
 }
+
+/*
+ * {  presets: ['es2015', 'react', 'stage-0'],
+      plugins: ['transform-runtime'],
+   }
+ */
 
 /**
  * Gets all .js files, non-recursively and then create separate browserify bundles
