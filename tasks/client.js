@@ -23,7 +23,9 @@ function bundleOpts() {
     watch: false,
     src: './src/client/',
     dest: './public/js/',
-    babel: {},
+    babel: {
+      stage: 0,
+    },
     browserify: browserifyOpts
   };
 }
