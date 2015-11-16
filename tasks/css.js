@@ -2,13 +2,25 @@
 
 var gulp = require('gulp');
 var gutil = require('gulp-util');
-var sass = require('gulp-sass');
-var sourcemaps = require('gulp-sourcemaps');
+
+// Postcss + plugins
+var postcss = require('gulp-postcss');
+var autoprefixer = require('autoprefixer');
+var nested = require('postcss-nested');
+var vars = require('postcss-simple-vars');
+var cssImport = require('postcss-import');
+
+var processors = [
+  autoprefixer({ browsers: ['last 2 versions']}),
+  nested,
+  cssImport,
+  vars
+];
 
 function bundleOpts() {
   return {
     prod: false,
-    src: './src/sass/**/*.scss',
+    src: './src/css/**/*.css',
     dest: './public/css'
   };
 }
@@ -25,20 +37,19 @@ function bundleFiles(done, opts) {
 
 function bundle(done, opts) {
  return gulp.src(opts.src)
-    .pipe(sourcemaps.init())
-      .pipe(sass().on('error', sass.logError))
-    .pipe(sourcemaps.write())
+    .pipe(postcss(processors, {
+      maps: { inline: true }
+    }))
     .pipe(gulp.dest(opts.dest))
     .on('end', function() {
-      gutil.log('Sass finished compiling CSS files');
+      gutil.log('PostCSS finished compiling CSS files');
       done();
     });
 }
 
 function bundleProd(done, opts) {
   return gulp.src(opts.src)
-    .pipe(sass({ outputStyle: 'compressed' })
-            .on('error', sass.logError))
+    .pipe(postcss(processors))
     .pipe(gulp.dest(opts.dest))
     .on('end', function() {
       gutil.log('Sass finished compiling CSS files');

@@ -3,11 +3,11 @@
 var gulp = require('gulp');
 var ClientTask = require('./tasks/client');
 var ServerTask = require('./tasks/server');
-var SassTask = require('./tasks/sass');
+var SassTask = require('./tasks/css');
 
-gulp.task('default', ['client:prod', 'server', 'sass:prod']);
-gulp.task('dev', ['client', 'server', 'sass']);
-gulp.task('watch', ['client:watch', 'server:watch', 'sass:watch']);
+gulp.task('default', ['client:prod', 'server', 'css:prod']);
+gulp.task('dev', ['client', 'server', 'css']);
+gulp.task('watch', ['client:watch', 'server:watch', 'css:watch']);
 
 /**
  * Client-side tasks
@@ -50,15 +50,15 @@ gulp.task('server:watch', function(done) {
  * Sass tasks
  */
 
-gulp.task('sass', function(done) {
+gulp.task('css', function(done) {
   SassTask.bundleFiles(done);
 });
 
-gulp.task('sass:watch', function() {
-  gulp.watch(SassTask.opts().src, ['sass']);
+gulp.task('css:watch', function() {
+  gulp.watch(SassTask.opts().src, ['css']);
 });
 
-gulp.task('sass:prod', function(done) {
+gulp.task('css:prod', function(done) {
   var opts = SassTask.opts();
   opts.prod = true;
 
